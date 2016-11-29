@@ -1,0 +1,68 @@
+--
+-- For more information on build.settings see the Corona SDK Build Guide at:
+-- https://docs.coronalabs.com/guide/distribution/buildSettings
+--
+
+settings =
+{
+	orientation =
+	{
+		-- Supported values for orientation:
+		-- portrait, portraitUpsideDown, landscapeLeft, landscapeRight
+
+		default = "landscapeRight",
+		supported = { "landscapeRight", "landscapeLeft"},
+	},
+	
+	excludeFiles =
+	{
+		-- Include only the necessary icon files on each platform
+		iphone = { "img/app/Icon-*dpi.png", },
+		android = { "img/app/Icon.png", "img/app/Icon-Small-*.png", "img/app/Icon*@2x.png", },
+	},
+
+	--
+	-- iOS Section
+	--
+	iphone =
+	{
+		plist =
+		{
+			UIStatusBarHidden = false,
+			UIPrerenderedIcon = true, -- set to false for "shine" overlay
+			--UIApplicationExitsOnSuspend = true, -- uncomment to quit app on suspend
+
+			CFBundleIconFiles =
+			{
+				"img/app/Icon.png",
+				"img/app/Icon@2x.png",
+				"img/app/Icon-167.png",
+				"img/app/Icon-60.png",
+				"img/app/Icon-60@2x.png",
+				"img/app/Icon-60@3x.png",
+				"img/app/Icon-72.png",
+				"img/app/Icon-72@2x.png",
+				"img/app/Icon-76.png",
+				"img/app/Icon-76@2x.png",
+				"img/app/Icon-Small.png",
+				"img/app/Icon-Small@2x.png",
+				"img/app/Icon-Small@3x.png",
+				"img/app/Icon-Small-40.png",
+				"img/app/Icon-Small-40@2x.png",
+				"img/app/Icon-Small-50.png",
+				"img/app/Icon-Small-50@2x.png",
+			},
+		},
+	},
+	
+	--
+	-- Android Section
+	--
+	android =
+	{
+		usesPermissions =
+		{
+			"android.permission.INTERNET",
+		},
+	},
+}
