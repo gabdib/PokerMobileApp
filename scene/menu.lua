@@ -23,7 +23,7 @@ function scene:create(event)
 
 	local function onPlayButtonRelease()
 		
-		composer.gotoScene("game", "fade", 500)
+		composer.gotoScene("scene.gameplay", "fade", 500)
 		
 		return true
 	end

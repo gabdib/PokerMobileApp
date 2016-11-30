@@ -1,22 +1,64 @@
 -----------------------------------------------------------------------------------------
 --
--- game.lua
+-- gameplay.lua
 --
 -----------------------------------------------------------------------------------------
 
+local widget = require("widget")
 local composer = require("composer")
 local scene = composer.newScene()
 
+
+local deck = require "model.deck"
+
 function scene:create(event)
+
 	local sceneGroup = self.view
-	
-	local title = display.newText("Game", display.contentCenterX, display.contentCenterY - 100, native.systemFont, 32)
+
+	local currDeck = deck:new({})
+
+	local background = display.newImageRect("img/game/background.jpg", display.actualContentWidth, display.actualContentHeight)
+	background.anchorX = 0
+	background.anchorY = 0
+	background.x = 0 + display.screenOriginX 
+	background.y = 0 + display.screenOriginY
+
+	sceneGroup:insert(background)
+
+	local title = display.newText("Game", display.contentCenterX, 20, native.systemFont, 32)
 	title:setFillColor(1)
 
 	sceneGroup:insert(title)
+
+	local function onShowCardButtonRelease()
+
+		local card = currDeck:getCard()
+
+		local cardImage = display.newImageRect(card:getImagePath(), card.config.width, card.config.height)
+		cardImage.x = display.contentCenterX
+		cardImage.y = display.contentCenterY		
+
+		sceneGroup:insert(cardImage)
+
+		return true
+	end
+
+	local showCardButton = widget.newButton{
+		label="Show Card",
+		labelColor = { default={0}, over={128} },
+		defaultFile = "img/menu/button.png",
+		overFile = "img/menu/button-over.png",
+		width =154, height=40,
+		onRelease = onShowCardButtonRelease
+	}
+
+	showCardButton.x = display.contentCenterX
+	showCardButton.y = 290
+
+	sceneGroup:insert(showCardButton)
 end
 
-function scene:show( event )
+function scene:show(event)
 	local sceneGroup = self.view
 	local phase = event.phase
 	
@@ -56,10 +98,10 @@ end
 ---------------------------------------------------------------------------------
 
 -- Listener setup
-scene:addEventListener( "create", scene )
-scene:addEventListener( "show", scene )
-scene:addEventListener( "hide", scene )
-scene:addEventListener( "destroy", scene )
+scene:addEventListener("create", scene)
+scene:addEventListener("show", scene)
+scene:addEventListener("hide", scene)
+scene:addEventListener("destroy", scene)
 
 -----------------------------------------------------------------------------------------
 
