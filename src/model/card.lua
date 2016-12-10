@@ -9,11 +9,11 @@ local mtCard = { __index = card }
 
 card.config = 
 {
-    back = 'img/game/cards/blue.png',
+    back = 'assets/img/game/cards/blue.png',
 
     height = 80,
     width = 60,
-	filePath = "img/game/cards/",
+	filePath = "assets/img/game/cards/",
     fileExtension = ".png",
 
     suit = {
@@ -30,16 +30,11 @@ card.config =
 
 function card.new(cardData)
 
-	local suit = cardData.suit
-	local value = cardData.value
-    local imagePath = card.config.filePath..suit..value..card.config.fileExtension
+    local newCard = {}
 
-    local newCard =
-    {
-        suit = suit,
-        value = value,
-        imagePath = imagePath
-    }
+	newCard.suit = cardData.suit
+	newCard.value = cardData.value
+    newCard.imagePath = card.config.filePath..newCard.suit..newCard.value..card.config.fileExtension
 
     return setmetatable(newCard, mtCard)
 

@@ -12,7 +12,7 @@ local scene = composer.newScene()
 function scene:create(event)
 	local sceneGroup = self.view
 	
-	local background = display.newImage("img/menu/background.jpg", display.actualContentWidth, display.actualContentHeight)
+	local background = display.newImage("assets/img/menu/background.jpg", display.actualContentWidth, display.actualContentHeight)
 	
 	sceneGroup:insert(background)
 
@@ -23,7 +23,7 @@ function scene:create(event)
 
 	local function onPlayButtonRelease()
 		
-		composer.gotoScene("scene.gameplay", "fade", 500)
+		composer.gotoScene("src.scene.gameplay", "fade", 500)
 		
 		return true
 	end
@@ -31,8 +31,8 @@ function scene:create(event)
 	local playButton = widget.newButton{
 		label="PLAY",
 		labelColor = { default={0}, over={128} },
-		defaultFile = "img/menu/button.png",
-		overFile = "img/menu/button-over.png",
+		defaultFile = "assets/img/menu/button.png",
+		overFile = "assets/img/menu/button-over.png",
 		width =154, height=40,
 		onRelease = onPlayButtonRelease
 	}

@@ -21,8 +21,3 @@ application =
 		--]]
 	},
 }
-
-sounds = {
-   	cardFlip = 'sounds/cardFlip.wav',
-    shuffle = 'souunds/shuffle.wav'	
-}

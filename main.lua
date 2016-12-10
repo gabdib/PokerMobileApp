@@ -4,8 +4,8 @@
 --
 -----------------------------------------------------------------------------------------
 
-display.setStatusBar( display.DefaultStatusBar )
+display.setStatusBar(display.DefaultStatusBar)
 
-local composer = require "composer"
+local composer = require ("composer")
 
-composer.gotoScene("scene.menu")
+composer.gotoScene("src.scene.menu")

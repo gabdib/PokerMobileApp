@@ -17,8 +17,8 @@ settings =
 	excludeFiles =
 	{
 		-- Include only the necessary icon files on each platform
-		iphone = { "img/app/Icon-*dpi.png", },
-		android = { "img/app/Icon.png", "img/app/Icon-Small-*.png", "img/app/Icon*@2x.png", },
+		iphone = { "assets/img/app/Icon-*dpi.png", },
+		android = { "assets/img/app/Icon.png", "assets/img/app/Icon-Small-*.png", "assets/img/app/Icon*@2x.png", },
 	},
 
 	--
@@ -34,23 +34,23 @@ settings =
 
 			CFBundleIconFiles =
 			{
-				"img/app/Icon.png",
-				"img/app/Icon@2x.png",
-				"img/app/Icon-167.png",
-				"img/app/Icon-60.png",
-				"img/app/Icon-60@2x.png",
-				"img/app/Icon-60@3x.png",
-				"img/app/Icon-72.png",
-				"img/app/Icon-72@2x.png",
-				"img/app/Icon-76.png",
-				"img/app/Icon-76@2x.png",
-				"img/app/Icon-Small.png",
-				"img/app/Icon-Small@2x.png",
-				"img/app/Icon-Small@3x.png",
-				"img/app/Icon-Small-40.png",
-				"img/app/Icon-Small-40@2x.png",
-				"img/app/Icon-Small-50.png",
-				"img/app/Icon-Small-50@2x.png",
+				"assets/img/app/Icon.png",
+				"assets/img/app/Icon@2x.png",
+				"assets/img/app/Icon-167.png",
+				"assets/img/app/Icon-60.png",
+				"assets/img/app/Icon-60@2x.png",
+				"assets/img/app/Icon-60@3x.png",
+				"assets/img/app/Icon-72.png",
+				"assets/img/app/Icon-72@2x.png",
+				"assets/img/app/Icon-76.png",
+				"assets/img/app/Icon-76@2x.png",
+				"assets/img/app/Icon-Small.png",
+				"assets/img/app/Icon-Small@2x.png",
+				"assets/img/app/Icon-Small@3x.png",
+				"assets/img/app/Icon-Small-40.png",
+				"assets/img/app/Icon-Small-40@2x.png",
+				"assets/img/app/Icon-Small-50.png",
+				"assets/img/app/Icon-Small-50@2x.png",
 			},
 		},
 	},
