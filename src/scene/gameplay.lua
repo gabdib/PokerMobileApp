@@ -11,64 +11,96 @@ local scene = composer.newScene()
 local deck = require "src.model.deck"
 local card = require "src.model.card"
 local sound = require "src.utility.sound"
-
-
-uiDelta = 
-{
-	deck = {x = 250, y = 0},
-	name = {x = 250, y = 150},
-	card = 
-	{
-		initial = {x = 250, y = 30}
-	},
-	score = {x = 250, y = 100}
-
-}
-
-cardPosition =
-{
-
-}
-
-local function onDrag(event)
-
-	local t = event.target
-
-	if event.phase == "began" then
-		t.xScale, t.yScale = 1.1, 1.1
-		t:toFront()
-		display.getCurrentStage():setFocus(t)
-		t.isFocus = true
-		xOrigin,yOrigin = t.x,t.y
-		t.x0 = event.x - t.x
-		t.y0 = event.y - t.y
-
-	elseif t.isFocus then
-
-		if "moved" == event.phase then
-
-			t.x = event.x - t.x0
-			t.y = event.y - t.y0
-
-		elseif "ended" == event.phase or "cancelled" == event.phase then
-
-			display.getCurrentStage():setFocus(nil)
-			t.isFocus = false
-			t.xScale, t.yScale = 1.0, 1.0
-
-		end
-	end
-
-	return true
-end
+local layout = require "src.utility.layout"
+local match = require "src.model.match"
 
 function scene:create(event)
 
 	local sceneGroup = self.view
 
+	currDeck = deck.new({})
+	currMatch = match.new({})
+
+	local function onDrag(event)
+
+		local t = event.target
+
+		if event.phase == "began" then
+			t.xScale, t.yScale = 1.1, 1.1
+			t:toFront()
+			display.getCurrentStage():setFocus(t)
+			t.isFocus = true
+			xOrigin,yOrigin = t.x,t.y
+			t.x0 = event.x - t.x
+			t.y0 = event.y - t.y
+
+		elseif t.isFocus then
+
+			if "moved" == event.phase then
+
+				t.x = event.x - t.x0
+				t.y = event.y - t.y0
+
+			elseif "ended" == event.phase or "cancelled" == event.phase then
+
+				display.getCurrentStage():setFocus(nil)
+				t.isFocus = false
+				t.xScale, t.yScale = 1.0, 1.0
+
+				local function computePosition()
+
+					local index, position
+
+					if t.x and t.y then
+
+						local isPlayerTurn, cardLevel = currMatch:getTurnInformation()
+						local cardPositionList = layout.getCardPositionList({isPlayer = isPlayerTurn, level = cardLevel})
+
+						if cardPositionList then
+
+							for i,pos in pairs(cardPositionList) do
+
+								if t.x >= pos.x-card.config.width/2 and t.x <= pos.x+card.config.width/2
+									and t.y >= pos.y-card.config.height/2 and t.y <= pos.y+card.config.height/2 then
+
+									index, position = i,pos
+
+									break
+								end
+							end
+						end
+					end
+
+					return index,position
+				end
+
+				local i,pos = computePosition()
+
+				local isPlayerTurn, cardLevel = currMatch:getTurnInformation()
+
+				local hand
+
+				if i and pos then
+					hand = currMatch:getHand({isPlayer = isPlayerTurn, handIndex = i}) 
+				end
+
+				if hand and #(hand.cards) == (cardLevel-1) then
+					t.x, t.y = pos.x, pos.y
+					t:removeEventListener("touch", onDrag)
+					local result = currMatch:addCardToHand({card = t.card, handIndex = i})
+					currMatch:nextTurn()
+				else
+					t.x, t.y = layout.initialCardPosition(currMatch.turn.who)
+				end
+			end
+		end
+
+		return true
+	end
+
 	local function setupUi()
 
-		local background = display.newImageRect("assets/img/game/background.jpg", display.actualContentWidth, display.actualContentHeight)
+		background = display.newImageRect("assets/img/game/background.jpg", display.actualContentWidth, display.actualContentHeight)
 		background.anchorX = 0
 		background.anchorY = 0
 		background.x = 0 + display.screenOriginX 
@@ -76,89 +108,80 @@ function scene:create(event)
 
 		sceneGroup:insert(background)
 
-		local rivalName = display.newText("RIVAL", display.contentCenterX-uiDelta.name.x, display.contentCenterY-uiDelta.name.y, native.systemFont, 16)
+		rivalName = display.newText("RIVAL", layout.position.rival.name.x, layout.position.rival.name.y, native.systemFont, 16)
 		rivalName:setFillColor(1)
 		sceneGroup:insert(rivalName)
 
-		rivalScore = display.newText("0", display.contentCenterX-uiDelta.score.x, display.contentCenterY-uiDelta.score.y, native.systemFont, 32)
+		rivalScore = display.newText("0", layout.position.rival.score.x, layout.position.rival.score.y, native.systemFont, 32)
 		rivalScore:setFillColor(1)
 		sceneGroup:insert(rivalScore)
 
-		local playerName = display.newText("PLAYER", display.contentCenterX-uiDelta.name.x, display.contentCenterY+uiDelta.name.y, native.systemFont, 16)
+		playerName = display.newText("PLAYER", layout.position.player.name.x, layout.position.player.name.y, native.systemFont, 16)
 		playerName:setFillColor(1)
 		sceneGroup:insert(playerName)
 
-		local playerScore = display.newText("0", display.contentCenterX-uiDelta.score.x, display.contentCenterY+uiDelta.score.y, native.systemFont, 32)
+		playerScore = display.newText("0", layout.position.player.score.x, layout.position.player.score.y, native.systemFont, 32)
 		playerScore:setFillColor(1)
 		sceneGroup:insert(playerScore)
-	end
 
-	setupUi()
-
-	local currDeck = deck:new({})
-
-	currDeck:shuffle()
-
-	cardDeltaY = 40
-
-	nextCardPos = {x = display.contentCenterX-160, y = display.contentCenterY+cardDeltaY}
-
-	cardNumber = 0
-
-	local function onDeckButtonRelease()
-
-		local card = currDeck:getCard()
-
-		if card then
-
-			sound.play(sound.cardFlip)
-
-			local cardImage = display.newImageRect(card:getImagePath(), card.config.width, card.config.height)
-			
-			cardImage:addEventListener("touch", onDrag)
-
-			cardImage.x = display.contentCenterX - uiDelta.card.initial.x
-			cardImage.y = display.contentCenterY - uiDelta.card.initial.y
-
-			nextCardPos.x = nextCardPos.x + 100
-
-			sceneGroup:insert(cardImage)
-		else
-			return false
-
-		end
-
-		return true
-	end
-
-	deckButton = widget.newButton{
+		deckButton = widget.newButton{
 		labelColor = { default={0}, over={128} },
 		defaultFile = "assets/img/game/cards/blue.png",
 		width = card.config.width, height = card.config.height,
-		onRelease = onDeckButtonRelease
-	}
+		onRelease = 
+			function ()
+				
+				if currMatch.turn.status == match.config.turn.status.beginning then
 
-	deckButton.x = display.contentCenterX - uiDelta.deck.x
-	deckButton.y = display.contentCenterY - uiDelta.deck.y
+					currMatch.turn.status = match.config.turn.status.ongGoing
 
-	sceneGroup:insert(deckButton)
+					local card = currDeck:getCard()
+
+					if card then
+
+						sound.play(sound.cardFlip)
+
+						local cardImage = display.newImageRect(card:getImagePath(), card.config.width, card.config.height)
+						cardImage.card = card
+						cardImage:addEventListener("touch", onDrag)
+						cardImage.x, cardImage.y = layout.initialCardPosition(currMatch.turn.who)
+						sceneGroup:insert(cardImage)
+					else
+
+						return false
+
+					end
+				else
+					return false
+				end
+
+				return true
+			end
+		}
+
+		deckButton.x, deckButton.y = layout.position.deck.x, layout.position.deck.y
+
+		sceneGroup:insert(deckButton)
+	end
+
+	setupUi()
 end
 
 function scene:show(event)
 
 	local sceneGroup = self.view
 
-	local function updateUi(updateData)
+	local function updateUi(params)
 
-		if updateData.rivalScore then rivalScore.text = updateData.rivalScore end
-
-		if updateData.playerScore then playerScore.text = updateData.playerScore end 
-
+		if params.rivalScore then rivalScore.text = updateData.rivalScore end
+		if params.playerScore then playerScore.text = updateData.playerScore end 
 	end
 
 	local phase = event.phase
 	
 	if phase == "will" then
+
+		currDeck:shuffle()
 
 	elseif phase == "did" then
 		-- Called when the scene is now on screen

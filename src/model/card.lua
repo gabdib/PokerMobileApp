@@ -32,9 +32,14 @@ function card.new(cardData)
 
     local newCard = {}
 
-	newCard.suit = cardData.suit
-	newCard.value = cardData.value
-    newCard.imagePath = card.config.filePath..newCard.suit..newCard.value..card.config.fileExtension
+	newCard.suit = cardData.suit or 0
+	newCard.value = cardData.value or 0
+
+    if newCard.suit == 0 or newCard.value == 0 then
+        newCard.imagePath = card.config.back
+    else
+        newCard.imagePath = card.config.filePath..newCard.suit..newCard.value..card.config.fileExtension
+    end
 
     return setmetatable(newCard, mtCard)
 
