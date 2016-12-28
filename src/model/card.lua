@@ -11,8 +11,8 @@ card.config =
 {
     back = 'assets/img/game/cards/blue.png',
 
-    height = 80,
-    width = 60,
+    height = 50,
+    width = 37.5,
 	filePath = "assets/img/game/cards/",
     fileExtension = ".png",
 

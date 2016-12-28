@@ -12,10 +12,10 @@ if system.getInfo("platformName") == "Android" then
 
    if androidVersion and tonumber(androidVersion) >= 4.4 then
 
-     native.setProperty( "androidSystemUiVisibility", "immersiveSticky" )
+     native.setProperty("androidSystemUiVisibility", "immersiveSticky")
 
    elseif androidVersion then
-     native.setProperty( "androidSystemUiVisibility", "lowProfile" )
+     native.setProperty( "androidSystemUiVisibility", "lowProfile")
    end
 end
 

@@ -10,24 +10,24 @@ layout = {}
 
 layout.contentCenterDelta = 
 {
-	deck = {x = 250, y = 0},
-	name = {x = 250, y = 150},
+	deck = {x = 200, y = 0},
+	name = {x = 200, y = 100},
 	card = 
 	{
-		initial = {x = 250, y = 30}
+		initial = {x = 200, y = 30}
 	},
-	score = {x = 250, y = 100}
+	score = {x = 200, y = 70}
 }
 
 function layout.generateCardPositionList(isPlayer)
 
 	local cardPositions = {}
 
-	local startingX = display.contentCenterX - 265
+	local startingX = display.contentCenterX - 200
 	local startingY = display.contentCenterY 
 			
-	local deltaX = 100
-	local deltaY = 30
+	local deltaX = 70
+	local deltaY = 20
 
 	if isPlayer == true then 
 		cardPositions.initial = {x = display.contentCenterX-layout.contentCenterDelta.card.initial.x, y = display.contentCenterY+layout.contentCenterDelta.card.initial.y}
@@ -38,7 +38,7 @@ function layout.generateCardPositionList(isPlayer)
 		startingY = startingY + deltaY/2
 	end
 
-	for iHand = 1, require("src.model.match").config.hands.size do
+	for iHand = 1, match.config.hands.size do
 		cardPositions[iHand] = {}
 		for iCard = 1, require("src.model.hand").config.size do
 			cardPositions[iHand][iCard] = {x = startingX + (deltaX*iCard), y = startingY + (deltaY*iHand)}

@@ -4,15 +4,16 @@
 --
 -----------------------------------------------------------------------------------------
 
-local widget = require("widget")
-local composer = require("composer")
-local scene = composer.newScene()
-
 local deck = require "src.model.deck"
 local card = require "src.model.card"
 local sound = require "src.utility.sound"
 local layout = require "src.utility.layout"
 local match = require "src.model.match"
+
+local widget = require("widget")
+local composer = require("composer")
+local scene = composer.newScene()
+
 
 function scene:create(event)
 
