@@ -56,8 +56,6 @@ function layout.generateCardPositionList(isPlayer)
 		end
 	end
 
-
-
 	return cardPositions
 end
 
@@ -92,6 +90,25 @@ layout.initialCardPosition =
 		end
 
 		return x,y
+	end
+
+layout.getPositionsByLevel =
+	function (params)
+
+		local positions
+
+		if params.level then
+
+			local level = params.level
+			
+			if params.who and params.who == match.config.turn.player then
+				positions = layout.position.player.card[level]
+			else
+				positions = layout.position.rival.card[level]
+			end
+		end
+
+		return positions
 	end
 
 layout.getCardPositionList = 

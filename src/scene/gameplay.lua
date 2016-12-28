@@ -20,6 +20,7 @@ function scene:create(event)
 	local sceneGroup = self.view
 
 	currDeck = deck.new({})
+	currDeck:shuffle()
 	currMatch = match.new({})
 
 	local function onDrag(event)
@@ -125,6 +126,28 @@ function scene:create(event)
 		playerScore:setFillColor(1)
 		sceneGroup:insert(playerScore)
 
+		local function displayCardImage(card, position, isEventListenerToAdd)
+
+			local result = false
+
+			if card and card.imagePath and position.x and position.y then
+
+				local cardImage = display.newImageRect(card.imagePath, card.config.width, card.config.height)
+
+				if isEventListenerToAdd == true then
+					cardImage.card = card
+					cardImage:addEventListener("touch", onDrag)
+				end
+
+				cardImage.x, cardImage.y = position.x,position.y
+				sceneGroup:insert(cardImage)
+
+				result = true
+			end
+
+			return result
+		end
+
 		deckButton = widget.newButton{
 		labelColor = { default={0}, over={128} },
 		defaultFile = "assets/img/game/cards/blue.png",
@@ -132,37 +155,47 @@ function scene:create(event)
 		onRelease = 
 			function ()
 				
+				local result = false
+
 				if currMatch.turn.status == match.config.turn.status.beginning then
 
 					currMatch.turn.status = match.config.turn.status.ongGoing
 
 					local card = currDeck:getCard()
 
-					if card then
+					sound.play(sound.cardFlip)
 
-						sound.play(sound.cardFlip)
-
-						local cardImage = display.newImageRect(card:getImagePath(), card.config.width, card.config.height)
-						cardImage.card = card
-						cardImage:addEventListener("touch", onDrag)
-						cardImage.x, cardImage.y = layout.initialCardPosition(currMatch.turn.who)
-						sceneGroup:insert(cardImage)
-					else
-
-						return false
-
-					end
-				else
-					return false
+					local x,y = layout.initialCardPosition(currMatch.turn.who)
+					local position = {x=x, y=y}
+					local result = displayCardImage(card, position, true)
 				end
 
-				return true
+				return result
 			end
 		}
 
 		deckButton.x, deckButton.y = layout.position.deck.x, layout.position.deck.y
 
 		sceneGroup:insert(deckButton)
+
+		local function initializeFirstLevel(who)
+
+			local firstLevelPositions = layout.getPositionsByLevel({who=who, level = 1})
+
+			for handIndex=1, #firstLevelPositions do
+
+				local card = currDeck:getCard()
+
+				if card then
+					displayCardImage(card, firstLevelPositions[handIndex], false)
+					currMatch:addCardToHand({card=card, handIndex=handIndex})
+					currMatch:nextTurn()
+				end
+			end
+		end
+
+		initializeFirstLevel(match.config.turn.player)
+		initializeFirstLevel(match.config.turn.rival)
 	end
 
 	setupUi()
@@ -181,8 +214,6 @@ function scene:show(event)
 	local phase = event.phase
 	
 	if phase == "will" then
-
-		currDeck:shuffle()
 
 	elseif phase == "did" then
 		-- Called when the scene is now on screen

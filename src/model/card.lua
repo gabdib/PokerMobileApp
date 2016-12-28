@@ -45,9 +45,4 @@ function card.new(cardData)
 
 end
 
-function card:getImagePath()
-
-	return self.imagePath
-end
-
 return card
