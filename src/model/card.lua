@@ -17,14 +17,31 @@ card.config =
     fileExtension = ".png",
 
     suit = {
-        "spade",
-        "club",
-        "heart",
-        "diamond",
+        "Spades",
+        "Clubs",
+        "Hearts",
+        "Diamonds",
         spade = 1,
         club = 2,
         heart = 3,
         diamond = 4
+    },
+
+    value =
+    {
+        "Ace",
+        "Two",
+        "Three",
+        "Four",
+        "Five",
+        "Six",
+        "Seven",
+        "Eight",
+        "Nine",
+        "Ten",
+        "Jack",
+        "Queen",
+        "King"
     }
 }
 
@@ -43,6 +60,18 @@ function card.new(cardData)
 
     return setmetatable(newCard, mtCard)
 
+end
+
+function card:valueToString()
+    return card.config.value[self.value]
+end
+
+function card:suitToString()
+    return card.config.suit[self.suit]
+end
+
+function card:toString()
+    return self:valueToString().." of "..self:suitToString()
 end
 
 return card

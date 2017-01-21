@@ -12,6 +12,7 @@ local match = require "src.model.match"
 
 local widget = require("widget")
 local composer = require("composer")
+
 local scene = composer.newScene()
 
 
@@ -91,6 +92,12 @@ function scene:create(event)
 					t:removeEventListener("touch", onDrag)
 					local result = currMatch:addCardToHand({card = t.card, handIndex = i})
 					currMatch:nextTurn()
+					
+					print(currMatch.rival.cardLevel, currMatch.player.cardLevel, match.config.maxCardLevel)
+					
+					if currMatch.player.cardLevel == currMatch.rival.cardLevel and currMatch.player.cardLevel == match.config.maxCardLevel then
+						currMatch:showDown()
+					end
 				else
 					t.x, t.y = layout.initialCardPosition(currMatch.turn.who)
 				end
@@ -132,7 +139,16 @@ function scene:create(event)
 
 			if card and card.imagePath and position.x and position.y then
 
-				local cardImage = display.newImageRect(card.imagePath, card.config.width, card.config.height)
+
+				local cardImage
+
+				local isPlayerTurn, cardLevel = currMatch:getTurnInformation()
+
+				if cardLevel < match.config.maxCardLevel then
+					cardImage = display.newImageRect(card.imagePath, card.config.width, card.config.height)
+				else
+					cardImage = display.newImageRect(card.config.back, card.config.width, card.config.height)
+				end
 
 				if isEventListenerToAdd == true then
 					cardImage.card = card
@@ -150,7 +166,7 @@ function scene:create(event)
 
 		deckButton = widget.newButton{
 		labelColor = { default={0}, over={128} },
-		defaultFile = "assets/img/game/cards/blue.png",
+		defaultFile = card.config.back,
 		width = card.config.width, height = card.config.height,
 		onRelease = 
 			function ()

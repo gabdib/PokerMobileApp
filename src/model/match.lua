@@ -5,12 +5,14 @@
 -----------------------------------------------------------------------------------------
 
 local hand = require "src.model.hand"
+local card = require "src.model.card"
 
 local match = {}
 local mtMatch = { __index = match }
 
 match.config = 
 {
+	maxCardLevel = 5, 
 	hands =
 	{
 		"first",
@@ -190,6 +192,21 @@ function match:addCardToHand(params)
 	end
 
 	return result
+end
+
+function match:showDown()
+
+	local playerRankings = {}
+
+	print("Showdown")
+
+	for kHand, vHand in ipairs(self.player.hands) do
+		playerRankings[kHand] = vHand:checkRanking()
+		-- print("Hand enum result = ", playerRankings[kHand].ranking, playerRankings[kHand].value)
+		print("Hand Result = ", 
+			hand.config.ranking[playerRankings[kHand].ranking].." : "..card.config.value[playerRankings[kHand].value])
+	end
+
 end
 
 return match

@@ -78,60 +78,59 @@ layout.position =
 	deck = {x = display.contentCenterX-layout.contentCenterDelta.deck.x, y = display.contentCenterY-layout.contentCenterDelta.deck.y}
 }
 
-layout.initialCardPosition =
-	function (who)
 
-		local x,y
-
-		if who and who == match.config.turn.player then
-			x,y = layout.position.player.card.initial.x, layout.position.player.card.initial.y
-		else
-			x, y = layout.position.rival.card.initial.x, layout.position.rival.card.initial.y
-		end
-
-		return x,y
-	end
-
-layout.getPositionsByLevel =
-	function (params)
-
-		local positions
-
-		if params.level then
-
-			local level = params.level
-			
-			if params.who and params.who == match.config.turn.player then
-				positions = layout.position.player.card[level]
-			else
-				positions = layout.position.rival.card[level]
-			end
-		end
-
-		return positions
-	end
-
-layout.getCardPositionList = 
-	function (params)
-		
-		local positionList
-
-		if params.level and params.isPlayer ~= nil then
-
-			local isPlayer = params.isPlayer
-			local level = params.level
-
-			if level >= 1 and level <= 5 then
-
-				if isPlayer == true then
-					positionList = layout.position.player.card[level]
-				else
-					positionList = layout.position.rival.card[level]
-				end
-			end
-		end
+function layout.initialCardPosition(who)
 	
-		return positionList
+	local x,y
+
+	if who and who == match.config.turn.player then
+		x,y = layout.position.player.card.initial.x, layout.position.player.card.initial.y
+	else
+		x, y = layout.position.rival.card.initial.x, layout.position.rival.card.initial.y
 	end
+
+	return x,y
+end
+
+function layout.getPositionsByLevel(params)
+
+	local positions
+
+	if params.level then
+
+		local level = params.level
+			
+		if params.who and params.who == match.config.turn.player then
+			positions = layout.position.player.card[level]
+		else
+			positions = layout.position.rival.card[level]
+		end
+	end
+
+	return positions
+end
+
+ 
+function layout.getCardPositionList(params)
+		
+	local positionList
+
+	if params.level and params.isPlayer ~= nil then
+
+		local isPlayer = params.isPlayer
+		local level = params.level
+
+		if level >= 1 and level <= 5 then
+
+			if isPlayer == true then
+				positionList = layout.position.player.card[level]
+			else
+				positionList = layout.position.rival.card[level]
+			end
+		end
+	end
+
+	return positionList
+end
 
 return layout
