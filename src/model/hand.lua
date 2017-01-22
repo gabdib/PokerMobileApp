@@ -85,7 +85,7 @@ function hand:checkRanking()
 	local straightResult = self:getStraightRanking(valueWeights)
 	local kindResult = self:getKindRanking(valueWeights)
 
-	if flushResult.ranking == hand.config.ranking.flush and straightResult == hand.config.ranking.straight then
+	if flushResult.ranking == hand.config.ranking.flush and straightResult.ranking == hand.config.ranking.straight then
 		
 		if flushResult.value == card.config.value[1] then
 			return {ranking = hand.config.ranking.royalFlush, value = flushResult.value}
@@ -151,13 +151,19 @@ function hand:getStraightRanking(weights)
 	local value = 0
 	local counter = 0
 
-	for iValue,iWeight in ipairs(weights) do
+	local iWeight = 0
+	for iValue = #weights, 1, -1 do
 
+		iWeight = weights[iValue]
 		if iWeight == 1 then
 			
 			counter = counter + 1
 
 			if value < iValue then value = iValue end
+
+			if counter == hand.config.size then
+				return {ranking = hand.config.ranking.straight, value = value}
+			end
 
 		elseif iWeight == 0 then
 
@@ -168,16 +174,14 @@ function hand:getStraightRanking(weights)
 		end
 	end
 
-	if counter == hand.config.size then 
-		return {ranking = hand.config.ranking.straight, value = value}
-	else
-		return {ranking = 0, value = 0}
-	end
+	return {ranking = 0, value = 0}
 end
 
 function hand:getKindRanking(weights)
 
 	local result = {ranking = hand.config.ranking.highCard, value = 0}
+
+	local totalWeight = 0
 
 	for value,weight in ipairs(weights) do
 
@@ -185,7 +189,6 @@ function hand:getKindRanking(weights)
 			
 			result.ranking = hand.config.ranking.fourOfAKind
 			result.value = value
-			break
 		
 		elseif weight == 3 then
 
@@ -218,6 +221,9 @@ function hand:getKindRanking(weights)
 			end
 		end
 		
+		totalWeight = totalWeight + weight
+		if totalWeight == 5  then break end
+
 	end
 
 	return result

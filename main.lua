@@ -22,7 +22,8 @@ end
 -- local composer = require ("composer")
 -- composer.gotoScene("src.scene.menu")
 
-
 local tester = require "src.utility.tester"
+
+-- tester.randomRankingTest()
 
 tester.rankingTest()
