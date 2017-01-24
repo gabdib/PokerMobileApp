@@ -77,8 +77,6 @@ end
 
 function hand:checkRanking()
 
-	local result = {}
-
 	local valueWeights = self:getValueWeights()
 
 	local flushResult = self:getFlushRanking()
@@ -93,23 +91,17 @@ function hand:checkRanking()
 			return {ranking = hand.config.ranking.straightFlush, value = straightResult.value}
 		end
 
-	elseif flushResult.ranking == 0 and straightResult == hand.config.ranking.straight then
+	elseif flushResult.ranking == 0 and straightResult.ranking == hand.config.ranking.straight then
 
 		return straightResult
 
-	elseif flushResult.ranking == hand.config.ranking.flush and straightResult == o then 
-		
-		if kindResult == hand.config.ranking.fullHouse then
-			return kindResult
-		else
-			return straightResult
-		end
-	else
+	elseif flushResult.ranking == hand.config.ranking.flush and straightResult.ranking == 0 
+		and kindResult.ranking ~= hand.config.ranking.fullHouse then
 
-		return kindResult
+			return flushResult
 	end
 
-	return ranking 
+	return kindResult
 end
 
 function hand:getValueWeights()

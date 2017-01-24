@@ -21,6 +21,23 @@ function tester.printHands(hands)
 	end
 end
 
+function tester.compareResults(actualResult, expectedResult, description)
+	
+	local areEquals
+
+	if actualResult.value == expectedResult.value and actualResult.ranking == expectedResult.ranking then	
+		print(description, "=> PASSED")
+		areEquals = true
+	else
+		print(description, "=> ERROR")
+		print("\tActual Result = ", hand.config.ranking[actualResult.ranking].." : "..card.config.value[actualResult.value])
+		print("\tExpected Result = ", hand.config.ranking[expectedResult.ranking].." : "..card.config.value[expectedResult.value])
+		areEquals = false
+	end
+
+	return areEquals
+end
+
 function tester.randomRankingTest()
 
 	local currDeck = deck.new({})
@@ -49,16 +66,53 @@ function tester.randomRankingTest()
 	tester.printHands(currMatch.rival.hands)
 
 	currMatch:showDown()
-
 end
 
-function tester.rankingTest()
+function tester.testStraight()
+
+	local straightFlushHand = hand.new({
+		index = 1,
+		cards =
+		{
+			card.new({suit = 1, value = 10}),
+			card.new({suit = 1, value = 11}),
+			card.new({suit = 1, value = 12}),
+			card.new({suit = 1, value = 13}),
+			card.new({suit = 1, value = 1})
+		}
+	})
+
+	local resultsToCompare =
+	{
+		{
+			description = "Straight flush : Five",
+			actual = hand.new({index = 1, cards = {card.new({suit = 1, value = 1}), card.new({suit = 1, value = 2}), card.new({suit = 1, value = 3}), card.new({suit = 1, value = 4}), card.new({suit = 1, value = 5})}}):checkRanking(),
+			expected = {value = 5, ranking = hand.config.ranking.straightFlush}
+		},
+		{
+			description = "Straight : Six",
+			actual = hand.new({index = 2, cards = {card.new({suit = 3, value = 2}), card.new({suit = 3, value = 3}), card.new({suit = 4, value = 4}), card.new({suit = 2, value = 5}), card.new({suit = 1, value = 6})}}):checkRanking(),
+			expected = {value = 6, ranking = hand.config.ranking.straight}
+		},
+		{
+			description = "Royal Flush",
+			actual = hand.new({index = 3, cards = {card.new({suit = 1, value = 10}), card.new({suit = 1, value = 11}), card.new({suit = 1, value = 12}), card.new({suit = 1, value = 13}), card.new({suit = 1, value = 1})}}):checkRanking(),
+			expected = {value = 1, ranking = hand.config.ranking.royalFlush}
+		}
+	}
+
+	for i,v in ipairs(resultsToCompare) do
+		tester.compareResults(v.actual, v.expected, v.description)
+	end
+end
+
+function tester.testMatch()
 
 	local currMatch = match.new({})
 
 	currMatch.player.hands =
 	{
-		-- ROYAL STRAIGHT
+		-- expected result => Straight flush : Five
 		hand.new({
 			index = 1,
 			cards =
@@ -70,7 +124,7 @@ function tester.rankingTest()
 				card.new({suit = 1, value = 5})
 			}
 		}),
-		-- FLUSH
+		-- expected result => Flush : Ten
 		hand.new({
 			index = 2,
 			cards =
@@ -82,7 +136,7 @@ function tester.rankingTest()
 				card.new({suit = 2, value = 6})
 			}
 		}),
-		-- STRAIGHT
+		-- expected result => Straight : Six
 		hand.new({
 			index = 3,
 			cards =
@@ -94,7 +148,7 @@ function tester.rankingTest()
 				card.new({suit = 1, value = 6})
 			}
 		}),
-		-- STRAIGHT FLUSH
+		-- expected result => Straight flush : Jack
 		hand.new({
 			index = 4,
 			cards =
@@ -106,6 +160,7 @@ function tester.rankingTest()
 				card.new({suit = 4, value = 11})
 			}
 		}),
+		-- expected result => Straight : Jack
 		hand.new({
 			index = 5,
 			cards =
@@ -124,5 +179,12 @@ function tester.rankingTest()
 	currMatch:showDown()
 
 end
+
+function tester.test()
+
+	tester.testStraight()
+	
+end
+
 
 return tester

@@ -24,6 +24,4 @@ end
 
 local tester = require "src.utility.tester"
 
--- tester.randomRankingTest()
-
-tester.rankingTest()
+tester.test()
