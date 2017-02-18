@@ -85,8 +85,8 @@ function hand:checkRanking()
 
 	if flushResult.ranking == hand.config.ranking.flush and straightResult.ranking == hand.config.ranking.straight then
 		
-		if flushResult.value == card.config.value[1] then
-			return {ranking = hand.config.ranking.royalFlush, value = flushResult.value}
+		if straightResult.value == 1 then
+			return {ranking = hand.config.ranking.royalFlush, value = straightResult.value}
 		else
 			return {ranking = hand.config.ranking.straightFlush, value = straightResult.value}
 		end
@@ -127,8 +127,9 @@ function hand:getFlushRanking()
 
 		if currentSuit == vCard.suit then
 
-			if value < vCard.value then value = vCard.value end
-
+			if value < vCard.value or vCard.value == 1 then
+				value = vCard.value
+			end
 		else
 			return {ranking = 0, value = 0}
 		end
@@ -147,13 +148,20 @@ function hand:getStraightRanking(weights)
 	for iValue = #weights, 1, -1 do
 
 		iWeight = weights[iValue]
+
+		if value == 13 and weights[1] == 1 then 
+			value = 1
+			counter = counter + 1
+		end
+
 		if iWeight == 1 then
-			
+ 
 			counter = counter + 1
 
-			if value < iValue then value = iValue end
+			if value < iValue and value ~= 1 then value = iValue end
 
 			if counter == hand.config.size then
+
 				return {ranking = hand.config.ranking.straight, value = value}
 			end
 

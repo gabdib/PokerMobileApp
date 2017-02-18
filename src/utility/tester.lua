@@ -70,18 +70,6 @@ end
 
 function tester.testStraight()
 
-	local straightFlushHand = hand.new({
-		index = 1,
-		cards =
-		{
-			card.new({suit = 1, value = 10}),
-			card.new({suit = 1, value = 11}),
-			card.new({suit = 1, value = 12}),
-			card.new({suit = 1, value = 13}),
-			card.new({suit = 1, value = 1})
-		}
-	})
-
 	local resultsToCompare =
 	{
 		{
