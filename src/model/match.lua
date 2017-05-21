@@ -97,7 +97,6 @@ function match:nextTurn()
 
 		for kHand, vHand in pairs(hands) do
 			isCardLevelToUpdate = (isCardLevelToUpdate == true) and (#(vHand.cards) == cardLevel)
-			--print(#(vHand.cards), cardLevel)
 		end
 
 		if isCardLevelToUpdate == true then
@@ -197,16 +196,23 @@ end
 function match:showDown()
 
 	local playerRankings = {}
+	local rivalRankings = {}
 
 	print("Showdown")
 
 	for kHand, vHand in ipairs(self.player.hands) do
 		playerRankings[kHand] = vHand:checkRanking()
-		-- print("Hand enum result = ", playerRankings[kHand].ranking, playerRankings[kHand].value)
 		print("Hand Result = ", 
 			hand.config.ranking[playerRankings[kHand].ranking].." : "..card.config.value[playerRankings[kHand].value])
 	end
 
+	for kHand, vHand in ipairs(self.rival.hands) do
+		rivalRankings[kHand] = vHand:checkRanking()
+		print("Hand Result = ", 
+			hand.config.ranking[rivalRankings[kHand].ranking].." : "..card.config.value[rivalRankings[kHand].value])
+	end
+
+	return playerRankings, rivalRankings
 end
 
 return match

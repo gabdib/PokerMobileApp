@@ -9,12 +9,12 @@ local card = require "src.model.card"
 local sound = require "src.utility.sound"
 local layout = require "src.utility.layout"
 local match = require "src.model.match"
+local pokerbot = require "src.bot.randompokerbot"
 
 local widget = require("widget")
 local composer = require("composer")
 
 local scene = composer.newScene()
-
 
 function scene:create(event)
 
@@ -87,16 +87,67 @@ function scene:create(event)
 					hand = currMatch:getHand({isPlayer = isPlayerTurn, handIndex = i}) 
 				end
 
+				-- if the cards is added on a valid hand => remove event listener and start new turn
 				if hand and #(hand.cards) == (cardLevel-1) then
 					t.x, t.y = pos.x, pos.y
 					t:removeEventListener("touch", onDrag)
 					local result = currMatch:addCardToHand({card = t.card, handIndex = i})
 					currMatch:nextTurn()
 					
-					print(currMatch.rival.cardLevel, currMatch.player.cardLevel, match.config.maxCardLevel)
-					
-					if currMatch.player.cardLevel == currMatch.rival.cardLevel and currMatch.player.cardLevel == match.config.maxCardLevel then
-						currMatch:showDown()
+					-- if previous turn was a player turn => play bot turn
+					if isPlayerTurn then
+
+						self:playTurn()
+
+					end
+
+					-- if the match is ended => showdown
+					if currMatch.player.cardLevel == currMatch.rival.cardLevel and currMatch.player.cardLevel == (match.config.maxCardLevel+1) then
+						
+						local function showdown()
+							
+							local playerRankings, rivalRankings = currMatch:showDown()
+
+							local playerRankPositions = layout.getPositionsByLevel({who=match.config.turn.player, level = 5})
+							local rivalRankPositions = layout.getPositionsByLevel({who=match.config.turn.rival, level = 5})
+
+							local winPosition, losePosition
+
+							for iHand=1, match.config.hands.size do
+								
+								local rivalHand = currMatch:getHand({isPlayer = false, handIndex = iHand})
+								local rivalCard = rivalHand.cards[hand.config.size]
+
+								local cardImage = display.newImageRect(rivalCard.imagePath, rivalCard.config.width, rivalCard.config.height)
+
+								cardImage.x, cardImage.y = rivalRankPositions[iHand].x,rivalRankPositions[iHand].y
+								sceneGroup:insert(cardImage)
+
+								if playerRankings[iHand].ranking > rivalRankings[iHand].ranking then
+									winPosition, losePosition = playerRankPositions[iHand], rivalRankPositions[iHand]
+									winPosition.y,losePosition.y = winPosition.y+40,losePosition.y-40
+								elseif playerRankings[iHand].ranking < rivalRankings[iHand].ranking then
+									winPosition,losePosition = rivalRankPositions[iHand],playerRankPositions[iHand]
+									winPosition.y,losePosition.y = winPosition.y-40,losePosition.y+40
+								else
+									if playerRankings[iHand].value > rivalRankings[iHand].value then
+										winPosition, losePosition = playerRankPositions[iHand], rivalRankPositions[iHand]
+										winPosition.y,losePosition.y = winPosition.y+40,losePosition.y-40
+									else
+										winPosition, losePosition = rivalRankPositions[iHand], playerRankPositions[iHand]
+										winPosition.y,losePosition.y = winPosition.y-40,losePosition.y+40
+									end
+								end
+
+								local winText = display.newText("WIN", winPosition.x, winPosition.y, native.systemFont, 16)
+								sceneGroup:insert(winText)
+
+								local loseText = display.newText("LOSE", losePosition.x, losePosition.y, native.systemFont, 16)
+								sceneGroup:insert(loseText)
+							end
+						end
+
+						showdown()
 					end
 				else
 					t.x, t.y = layout.initialCardPosition(currMatch.turn.who)
@@ -107,7 +158,7 @@ function scene:create(event)
 		return true
 	end
 
-	local function setupUi()
+	function setupUi()
 
 		background = display.newImageRect("assets/img/game/background.jpg", display.actualContentWidth, display.actualContentHeight)
 		background.anchorX = 0
@@ -133,20 +184,19 @@ function scene:create(event)
 		playerScore:setFillColor(1)
 		sceneGroup:insert(playerScore)
 
-		local function displayCardImage(card, position, isEventListenerToAdd)
+		function displayCardImage(card, position, isEventListenerToAdd)
 
 			local result = false
 
 			if card and card.imagePath and position.x and position.y then
 
-
 				local cardImage
 
 				local isPlayerTurn, cardLevel = currMatch:getTurnInformation()
 
-				if cardLevel < match.config.maxCardLevel then
+				if isPlayerTurn == true or (isPlayerTurn == false and cardLevel < match.config.maxCardLevel) then
 					cardImage = display.newImageRect(card.imagePath, card.config.width, card.config.height)
-				else
+				elseif isPlayerTurn == false and cardLevel == match.config.maxCardLevel then
 					cardImage = display.newImageRect(card.config.back, card.config.width, card.config.height)
 				end
 
@@ -272,5 +322,48 @@ scene:addEventListener("hide", scene)
 scene:addEventListener("destroy", scene)
 
 -----------------------------------------------------------------------------------------
+
+function scene:playTurn()
+
+	local sceneGroup = self.view
+
+				
+	local result = false
+
+	if currMatch.turn.status == match.config.turn.status.beginning then
+
+		currMatch.turn.status = match.config.turn.status.ongGoing
+
+		local card = currDeck:getCard()
+
+		local isPlayerTurn, cardLevel = currMatch:getTurnInformation()
+		local cardPositionList = layout.getCardPositionList({isPlayer = isPlayerTurn, level = cardLevel})
+
+		local insert = false
+		while insert == false do
+
+			local randomHandIndex = math.random(5)
+
+			local isPlayerTurn, cardLevel = currMatch:getTurnInformation()
+
+			local hand = currMatch:getHand({isPlayer = isPlayerTurn, handIndex = randomHandIndex}) 
+
+			if hand and #(hand.cards) == (cardLevel-1) then
+
+				local position = {x = cardPositionList[randomHandIndex].x, y = cardPositionList[randomHandIndex].y}
+				
+				sound.play(sound.cardFlip)
+
+				local result = displayCardImage(card, position , false)
+
+				currMatch:addCardToHand({card = card, handIndex = randomHandIndex})
+				
+				currMatch:nextTurn()
+
+				insert = true
+			end
+		end
+	end
+end
 
 return scene

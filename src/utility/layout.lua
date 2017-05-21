@@ -127,6 +127,7 @@ function layout.getCardPositionList(params)
 			else
 				positionList = layout.position.rival.card[level]
 			end
+
 		end
 	end
 

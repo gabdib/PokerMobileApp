@@ -19,9 +19,8 @@ if system.getInfo("platformName") == "Android" then
    end
 end
 
--- local composer = require ("composer")
--- composer.gotoScene("src.scene.menu")
+local composer = require ("composer")
+composer.gotoScene("src.scene.menu")
 
-local tester = require "src.utility.tester"
-
-tester.test()
+-- local tester = require "src.utility.tester"
+-- tester.test()
