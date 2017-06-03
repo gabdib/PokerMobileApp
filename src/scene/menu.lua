@@ -16,7 +16,7 @@ function scene:create(event)
 	
 	sceneGroup:insert(background)
 
-	local title = display.newText("Poker Mobile App", display.contentCenterX, display.contentCenterY - 100, native.systemFont, 32)
+	local title = display.newText("Five-O-lous Poker", display.contentCenterX, display.contentCenterY - 100, "PokerKings-Regular.ttf", 32)
 	title:setFillColor(0)
 	
 	sceneGroup:insert(title)

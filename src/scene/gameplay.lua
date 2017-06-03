@@ -20,6 +20,8 @@ function scene:create(event)
 
 	local sceneGroup = self.view
 
+	composer.recycleOnSceneChange = true
+
 	currDeck = deck.new({})
 	currDeck:shuffle()
 	currMatch = match.new({})
@@ -106,13 +108,18 @@ function scene:create(event)
 						
 						local function showdown()
 							
+							local gameResult = {}
+
 							local playerRankings, rivalRankings = currMatch:showDown()
 
 							local playerRankPositions = layout.getPositionsByLevel({who=match.config.turn.player, level = 5})
 							local rivalRankPositions = layout.getPositionsByLevel({who=match.config.turn.rival, level = 5})
 
 							local winPosition, losePosition
+							local playerWinningCounter, rivalWinningCounter = 0,0
 
+
+							local checkHand
 							for iHand=1, match.config.hands.size do
 								
 								local rivalHand = currMatch:getHand({isPlayer = false, handIndex = iHand})
@@ -126,28 +133,56 @@ function scene:create(event)
 								if playerRankings[iHand].ranking > rivalRankings[iHand].ranking then
 									winPosition, losePosition = playerRankPositions[iHand], rivalRankPositions[iHand]
 									winPosition.y,losePosition.y = winPosition.y+40,losePosition.y-40
+									playerWinningCounter = playerWinningCounter + 1
 								elseif playerRankings[iHand].ranking < rivalRankings[iHand].ranking then
 									winPosition,losePosition = rivalRankPositions[iHand],playerRankPositions[iHand]
 									winPosition.y,losePosition.y = winPosition.y-40,losePosition.y+40
+									rivalWinningCounter = rivalWinningCounter + 1
 								else
 									if playerRankings[iHand].value > rivalRankings[iHand].value then
 										winPosition, losePosition = playerRankPositions[iHand], rivalRankPositions[iHand]
 										winPosition.y,losePosition.y = winPosition.y+40,losePosition.y-40
+										playerWinningCounter = playerWinningCounter + 1
 									else
 										winPosition, losePosition = rivalRankPositions[iHand], playerRankPositions[iHand]
 										winPosition.y,losePosition.y = winPosition.y-40,losePosition.y+40
+										rivalWinningCounter = rivalWinningCounter + 1
 									end
 								end
 
-								local winText = display.newText("WIN", winPosition.x, winPosition.y, native.systemFont, 16)
-								sceneGroup:insert(winText)
+								local function showHandResult() 
+									local winText = display.newText("WIN", winPosition.x, winPosition.y, native.systemFont, 16)
+									sceneGroup:insert(winText)
+									transition.fadeIn( winText, {time=2000 })
 
-								local loseText = display.newText("LOSE", losePosition.x, losePosition.y, native.systemFont, 16)
-								sceneGroup:insert(loseText)
+									local loseText = display.newText("LOSE", losePosition.x, losePosition.y, native.systemFont, 16)
+									sceneGroup:insert(loseText)
+									transition.fadeIn(loseText, { time=2000 })
+								end
+
+								--timer.performWithDelay(1000, showHandResult)
+								showHandResult()
 							end
+
+							if playerWinningCounter > rivalWinningCounter then
+								gameResult.winner = "player"
+							else
+								gameResult.winner = "rival"
+							end
+
+							return gameResult
 						end
 
-						showdown()
+						local gameResult = showdown()
+
+						local function gotoGameoverScene()
+
+							local options = { effect = "crossFade", time = 2500, params = { gameResult = gameResult} }
+
+							composer.gotoScene("gameover", options)
+						end
+
+						timer.performWithDelay(3000, gotoGameoverScene)
 					end
 				else
 					t.x, t.y = layout.initialCardPosition(currMatch.turn.who)
@@ -168,21 +203,21 @@ function scene:create(event)
 
 		sceneGroup:insert(background)
 
-		rivalName = display.newText("RIVAL", layout.position.rival.name.x, layout.position.rival.name.y, native.systemFont, 16)
-		rivalName:setFillColor(1)
-		sceneGroup:insert(rivalName)
+		--rivalName = display.newText("RIVAL", layout.position.rival.name.x, layout.position.rival.name.y, native.systemFont, 16)
+		--rivalName:setFillColor(1)
+		--sceneGroup:insert(rivalName)
 
-		rivalScore = display.newText("0", layout.position.rival.score.x, layout.position.rival.score.y, native.systemFont, 32)
-		rivalScore:setFillColor(1)
-		sceneGroup:insert(rivalScore)
+		--rivalScore = display.newText("0", layout.position.rival.score.x, layout.position.rival.score.y, native.systemFont, 32)
+		--rivalScore:setFillColor(1)
+		--sceneGroup:insert(rivalScore)
 
-		playerName = display.newText("PLAYER", layout.position.player.name.x, layout.position.player.name.y, native.systemFont, 16)
-		playerName:setFillColor(1)
-		sceneGroup:insert(playerName)
+		--playerName = display.newText("PLAYER", layout.position.player.name.x, layout.position.player.name.y, native.systemFont, 16)
+		--playerName:setFillColor(1)
+		--sceneGroup:insert(playerName)
 
-		playerScore = display.newText("0", layout.position.player.score.x, layout.position.player.score.y, native.systemFont, 32)
-		playerScore:setFillColor(1)
-		sceneGroup:insert(playerScore)
+		--playerScore = display.newText("0", layout.position.player.score.x, layout.position.player.score.y, native.systemFont, 32)
+		--playerScore:setFillColor(1)
+		--sceneGroup:insert(playerScore)
 
 		function displayCardImage(card, position, isEventListenerToAdd)
 
