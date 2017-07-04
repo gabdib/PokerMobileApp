@@ -4,9 +4,10 @@
 --
 -----------------------------------------------------------------------------------------
 
-display.setStatusBar(display.DefaultStatusBar)
+display.setStatusBar(display.HiddenStatusBar)
 
-if system.getInfo("platformName") == "Android" then
+local platformName = system.getInfo("platformName")
+if platformName == "Android" then
 	native.setProperty('androidSystemUiVisibility', 'immersiveSticky')
 end
 

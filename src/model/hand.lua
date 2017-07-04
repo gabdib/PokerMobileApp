@@ -5,7 +5,6 @@
 -----------------------------------------------------------------------------------------
 
 local card = require "src.model.card"
-local ranking = require "src.model.ranking"
 
 local hand = {}
 local mtHand = { __index = hand}
@@ -99,9 +98,9 @@ function hand:checkRanking()
 		and kindResult.ranking ~= hand.config.ranking.fullHouse then
 
 			return flushResult
+	else
+		return kindResult
 	end
-
-	return kindResult
 end
 
 function hand:getValueWeights()
@@ -111,8 +110,6 @@ function hand:getValueWeights()
 	for i=1,#(card.config.value) do weights[i] = 0 end
 
 	for kCard,vCard in ipairs(self.cards) do weights[vCard.value] = weights[vCard.value] + 1 end
-
-	-- print("Value Weights: ") for k,v in ipairs(weights) do print(k,v) end
 
 	return weights
 
@@ -127,7 +124,7 @@ function hand:getFlushRanking()
 
 		if currentSuit == vCard.suit then
 
-			if value < vCard.value or vCard.value == 1 then
+			if (value < vCard.value and value ~= 1) or vCard.value == 1 then
 				value = vCard.value
 			end
 		else
@@ -194,6 +191,7 @@ function hand:getKindRanking(weights)
 
 			if result.ranking == hand.config.ranking.onePair then
 				result.ranking = hand.config.ranking.fullHouse
+				result.value = value
 			else 
 				result.ranking = hand.config.ranking.threeOfAKind
 			end
@@ -216,7 +214,7 @@ function hand:getKindRanking(weights)
 				result.value = value
 			end
 		else
-			if result.ranking == hand.config.ranking.highCard and result.value < value then
+			if (result.ranking == hand.config.ranking.highCard and result.value < value and value ~= 1) or value == 1 then
 				result.value = value
 			end
 		end

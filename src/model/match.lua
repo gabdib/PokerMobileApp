@@ -105,13 +105,13 @@ function match:nextTurn()
 			else
 				self.rival.cardLevel = self.rival.cardLevel + 1
 			end
-		end	
+		end
 	end
 
 	updateCardLevel()
 
 	if self.turn.who == match.config.turn.player then
-		self.turn.who = self.turn.who == match.config.turn.rival
+		self.turn.who = match.config.turn.rival
 	else
 		self.turn.who = match.config.turn.player
 	end
@@ -202,13 +202,13 @@ function match:showDown()
 
 	for kHand, vHand in ipairs(self.player.hands) do
 		playerRankings[kHand] = vHand:checkRanking()
-		print("Hand Result = ", 
+		print("Player Hand ", kHand, " Result = ", 
 			hand.config.ranking[playerRankings[kHand].ranking].." : "..card.config.value[playerRankings[kHand].value])
 	end
 
 	for kHand, vHand in ipairs(self.rival.hands) do
 		rivalRankings[kHand] = vHand:checkRanking()
-		print("Hand Result = ", 
+		print("Rival Hand ", kHand, " Result = ", 
 			hand.config.ranking[rivalRankings[kHand].ranking].." : "..card.config.value[rivalRankings[kHand].value])
 	end
 

@@ -3,18 +3,6 @@ local composer = require( "composer" )
 
 local scene = composer.newScene()
  
--- -----------------------------------------------------------------------------------
--- Code outside of the scene event functions below will only be executed ONCE unless
--- the scene is removed entirely (not recycled) via "composer.removeScene()"
--- -----------------------------------------------------------------------------------
- 
- 
- 
- 
--- -----------------------------------------------------------------------------------
--- Scene event functions
--- -----------------------------------------------------------------------------------
- 
 -- create()
 function scene:create( event )
  
@@ -23,38 +11,47 @@ function scene:create( event )
     composer.removeScene("gameplay")
 
     local gameResult = event.params.gameResult
+    local difficulty = event.params.difficulty
 
     local resultMessage = ""
+    local resultIconPath = ""
     if gameResult and gameResult.winner then
         if gameResult.winner == "player" then
-            resultMessage = "You Win!"
+            resultMessage = "You Win"
+            resultIconPath = "assets/img/game/winner.png"
         elseif gameResult.winner == "rival" then
-            resultMessage = "You Lost!"
+            resultMessage = "You Lose"
+            resultIconPath = "assets/img/game/loser.png"
         end
     end
     
-    local background = display.newImage("assets/img/menu/background.jpg", display.actualContentWidth, display.actualContentHeight)
-    
+    local background = display.newRect(display.contentCenterX, display.contentCenterY, display.actualContentWidth, display.actualContentHeight)
+    background:setFillColor(0,0,0, 0.4)
     sceneGroup:insert(background)
 
-    local resultText = display.newText(resultMessage, display.contentCenterX, display.contentCenterY, native.systemFont, 32)
-    resultText:setFillColor(0)
-    
+    local resultText = display.newText(resultMessage, display.contentCenterX, display.contentCenterY - 100, "assets/fonts/PokerKings-Regular.ttf", 48)
+    resultText:setFillColor(255,255,255)
     sceneGroup:insert(resultText)
 
+    local resultIcon = display.newImage(resultIconPath, 96, 96)
+    resultIcon.x, resultIcon.y = display.contentCenterX, display.contentCenterY
+    sceneGroup:insert(resultIcon)
+
     local function onReplayButtonRelease()
-        
-        composer.gotoScene("src.scene.gameplay", "fade", 500)
-        
+               
+        composer.gotoScene("src.scene.difficulty", "fade", 500)
+
         return true
     end
 
     local replayButton = widget.newButton{
-        label="Replay",
-        labelColor = { default={0}, over={128} },
-        defaultFile = "assets/img/menu/button.png",
-        overFile = "assets/img/menu/button-over.png",
-        width =154, height=40,
+        label="Rematch",
+        labelColor = { default={255,255,255}, over={52,152,219} },
+        labelYOffset = 50,
+        defaultFile = "assets/img/menu/rematch.png",
+        overFile = "assets/img/menu/rematch-hover.png",
+        width = 50, height = 50,
+        font = "assets/fonts/PokerKings-Regular.ttf",
         onRelease = onReplayButtonRelease
     }
 
@@ -72,10 +69,12 @@ function scene:create( event )
 
     local quitButton = widget.newButton{
         label="Quit",
-        labelColor = { default={0}, over={128} },
-        defaultFile = "assets/img/menu/button.png",
-        overFile = "assets/img/menu/button-over.png",
-        width =154, height=40,
+        labelColor = { default={255,255,255}, over={52,152,219} },
+        labelYOffset = 50,
+        defaultFile = "assets/img/menu/quit.png",
+        overFile = "assets/img/menu/quit-hover.png",
+        width = 50, height = 50,
+        font = "assets/fonts/PokerKings-Regular.ttf",
         onRelease = onQuitButtonRelease
     }
 
@@ -84,8 +83,7 @@ function scene:create( event )
 
     sceneGroup:insert(quitButton)
  
-end
- 
+end 
  
 -- show()
 function scene:show( event )
@@ -93,15 +91,11 @@ function scene:show( event )
     local sceneGroup = self.view
     local phase = event.phase
  
-    if ( phase == "will" ) then
-        -- Code here runs when the scene is still off screen (but is about to come on screen)
+    if (phase == "will") then
  
-    elseif ( phase == "did" ) then
-        -- Code here runs when the scene is entirely on screen
- 
+    elseif (phase == "did") then
     end
 end
- 
  
 -- hide()
 function scene:hide( event )
@@ -117,8 +111,7 @@ function scene:hide( event )
  
     end
 end
- 
- 
+
 -- destroy()
 function scene:destroy( event )
  
@@ -127,14 +120,14 @@ function scene:destroy( event )
  
 end
  
- 
+
 -- -----------------------------------------------------------------------------------
 -- Scene event function listeners
 -- -----------------------------------------------------------------------------------
-scene:addEventListener( "create", scene )
-scene:addEventListener( "show", scene )
-scene:addEventListener( "hide", scene )
-scene:addEventListener( "destroy", scene )
--- -----------------------------------------------------------------------------------
+scene:addEventListener("create", scene)
+scene:addEventListener("show", scene)
+scene:addEventListener("hide", scene)
+scene:addEventListener("destroy", scene)
+--------------------------------------------------------------------------------------
  
 return scene

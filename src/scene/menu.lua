@@ -13,17 +13,19 @@ function scene:create(event)
 	local sceneGroup = self.view
 	
 	local background = display.newImage("assets/img/menu/background.jpg", display.actualContentWidth, display.actualContentHeight)
-	
+	background.x = display.contentCenterX
+	background.y = display.contentCenterY
 	sceneGroup:insert(background)
 
-	local title = display.newText("Five-O-lous Poker", display.contentCenterX, display.contentCenterY - 100, "PokerKings-Regular.ttf", 32)
-	title:setFillColor(0)
-	
+	local title = display.newText("Five-O-lous", display.contentCenterX, display.contentCenterY - 100, "assets/fonts/PokerKings-Regular.ttf", 70)
 	sceneGroup:insert(title)
+	
+	local subtitle = display.newText("poker", display.contentCenterX, display.contentCenterY - 75, "assets/fonts/deftone-stylus.ttf", 30)
+	sceneGroup:insert(subtitle)
 
 	local function onPlayButtonRelease()
 		
-		composer.gotoScene("src.scene.gameplay", "fade", 500)
+		composer.gotoScene("src.scene.difficulty", "fade", 500)
 		
 		return true
 	end
@@ -32,13 +34,15 @@ function scene:create(event)
 		label="PLAY",
 		labelColor = { default={0}, over={128} },
 		defaultFile = "assets/img/menu/button.png",
-		overFile = "assets/img/menu/button-over.png",
-		width =154, height=40,
+		overFile = "assets/img/menu/button.png",
+		width = 154, height= 150,
+		font = "assets/fonts/PokerKings-Regular.ttf",
+		fontSize = 32,
 		onRelease = onPlayButtonRelease
 	}
 
 	playButton.x = display.contentCenterX
-	playButton.y = display.contentCenterY + 100
+	playButton.y = display.contentCenterY + 80
 
 	sceneGroup:insert(playButton)
 end

@@ -11,12 +11,12 @@ layout = {}
 layout.contentCenterDelta = 
 {
 	deck = {x = 200, y = 0},
-	name = {x = 200, y = 100},
+	name = {x = 200, y = 140},
 	card = 
 	{
 		initial = {x = 200, y = 30}
 	},
-	score = {x = 200, y = 70}
+	icon = {x = 200, y = 90}
 }
 
 function layout.generateCardPositionList(isPlayer)
@@ -30,17 +30,26 @@ function layout.generateCardPositionList(isPlayer)
 	local deltaY = 20
 
 	if isPlayer == true then 
-		cardPositions.initial = {x = display.contentCenterX-layout.contentCenterDelta.card.initial.x, y = display.contentCenterY+layout.contentCenterDelta.card.initial.y}
+		cardPositions.initial =
+		{
+			x = display.contentCenterX-layout.contentCenterDelta.card.initial.x,
+			y = display.contentCenterY+layout.contentCenterDelta.card.initial.y
+		}
+
 		startingY = startingY + deltaY/2
 	else 
 		deltaY = deltaY * (-1)
-		cardPositions.initial = {x = display.contentCenterX-layout.contentCenterDelta.card.initial.x, y = display.contentCenterY-layout.contentCenterDelta.card.initial.y}
+		cardPositions.initial =
+		{
+			x = display.contentCenterX-layout.contentCenterDelta.card.initial.x,
+			y = display.contentCenterY-layout.contentCenterDelta.card.initial.y
+		}
 		startingY = startingY + deltaY/2
 	end
 
-	for iHand = 1, match.config.hands.size do
+	for iHand = 1, 5 do
 		cardPositions[iHand] = {}
-		for iCard = 1, require("src.model.hand").config.size do
+		for iCard = 1, 5 do
 			cardPositions[iHand][iCard] = {x = startingX + (deltaX*iCard), y = startingY + (deltaY*iHand)}
 		end
 	end
@@ -56,6 +65,8 @@ function layout.generateCardPositionList(isPlayer)
 		end
 	end
 
+	--printCardPositions()
+
 	return cardPositions
 end
 
@@ -64,14 +75,14 @@ layout.position =
 	player = 
 	{
 		name = {x = display.contentCenterX-layout.contentCenterDelta.name.x, y = display.contentCenterY+layout.contentCenterDelta.name.y},
-		score = {x =display.contentCenterX-layout.contentCenterDelta.score.x , y = display.contentCenterY+layout.contentCenterDelta.score.y},
+		icon = {x =display.contentCenterX-layout.contentCenterDelta.icon.x , y = display.contentCenterY+layout.contentCenterDelta.icon.y},
 		card = layout.generateCardPositionList(true)
 	},
 	
 	rival =
 	{
 		name = {x = display.contentCenterX-layout.contentCenterDelta.name.x, y = display.contentCenterY-layout.contentCenterDelta.name.y},
-		score = {x = display.contentCenterX-layout.contentCenterDelta.score.x, y = display.contentCenterY-layout.contentCenterDelta.score.y},
+		icon = {x = display.contentCenterX-layout.contentCenterDelta.icon.x, y = display.contentCenterY-layout.contentCenterDelta.icon.y},
 		card = layout.generateCardPositionList(false)
 	},
 

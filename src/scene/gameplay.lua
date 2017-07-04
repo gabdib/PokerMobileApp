@@ -7,9 +7,14 @@
 local deck = require "src.model.deck"
 local card = require "src.model.card"
 local sound = require "src.utility.sound"
-local layout = require "src.utility.layout"
 local match = require "src.model.match"
-local pokerbot = require "src.bot.randompokerbot"
+
+local layout = require "src.utility.layout"
+
+local pokerbot = require "src.bot.pokerbot"
+local easyPokerbot = require "src.bot.easypokerbot"
+local mediumPokerbot = require "src.bot.mediumpokerbot"
+local hardPokerbot = require "src.bot.hardpokerbot"
 
 local widget = require("widget")
 local composer = require("composer")
@@ -25,6 +30,21 @@ function scene:create(event)
 	currDeck = deck.new({})
 	currDeck:shuffle()
 	currMatch = match.new({})
+
+	local difficulty = event.params.difficulty
+
+	if difficulty then
+
+		if difficulty == "easy" then
+			pokerbot = easyPokerbot.new({})
+		elseif difficulty == "medium" then
+			pokerbot = mediumPokerbot.new({})
+		elseif difficulty == "hard" then
+			pokerbot = hardPokerbot.new({})
+		else
+			pokerbot = pokerbot.new({})
+		end
+	end
 
 	local function onDrag(event)
 
@@ -97,11 +117,7 @@ function scene:create(event)
 					currMatch:nextTurn()
 					
 					-- if previous turn was a player turn => play bot turn
-					if isPlayerTurn then
-
-						self:playTurn()
-
-					end
+					if isPlayerTurn then self:playTurn() end
 
 					-- if the match is ended => showdown
 					if currMatch.player.cardLevel == currMatch.rival.cardLevel and currMatch.player.cardLevel == (match.config.maxCardLevel+1) then
@@ -132,32 +148,34 @@ function scene:create(event)
 
 								if playerRankings[iHand].ranking > rivalRankings[iHand].ranking then
 									winPosition, losePosition = playerRankPositions[iHand], rivalRankPositions[iHand]
-									winPosition.y,losePosition.y = winPosition.y+40,losePosition.y-40
+									winPosition.y,losePosition.y = winPosition.y+30,losePosition.y-30
 									playerWinningCounter = playerWinningCounter + 1
 								elseif playerRankings[iHand].ranking < rivalRankings[iHand].ranking then
 									winPosition,losePosition = rivalRankPositions[iHand],playerRankPositions[iHand]
-									winPosition.y,losePosition.y = winPosition.y-40,losePosition.y+40
+									winPosition.y,losePosition.y = winPosition.y-30,losePosition.y+30
 									rivalWinningCounter = rivalWinningCounter + 1
 								else
 									if playerRankings[iHand].value > rivalRankings[iHand].value then
 										winPosition, losePosition = playerRankPositions[iHand], rivalRankPositions[iHand]
-										winPosition.y,losePosition.y = winPosition.y+40,losePosition.y-40
+										winPosition.y,losePosition.y = winPosition.y+30,losePosition.y-30
 										playerWinningCounter = playerWinningCounter + 1
 									else
 										winPosition, losePosition = rivalRankPositions[iHand], playerRankPositions[iHand]
-										winPosition.y,losePosition.y = winPosition.y-40,losePosition.y+40
+										winPosition.y,losePosition.y = winPosition.y-30,losePosition.y+30
 										rivalWinningCounter = rivalWinningCounter + 1
 									end
 								end
 
 								local function showHandResult() 
-									local winText = display.newText("WIN", winPosition.x, winPosition.y, native.systemFont, 16)
-									sceneGroup:insert(winText)
-									transition.fadeIn( winText, {time=2000 })
+									local winIcon = display.newImageRect("assets/img/game/winner.png", 28, 28)
+									winIcon.x, winIcon.y = winPosition.x, winPosition.y
+									sceneGroup:insert(winIcon)
+									transition.fadeIn( winIcon, {time=2000 })
 
-									local loseText = display.newText("LOSE", losePosition.x, losePosition.y, native.systemFont, 16)
-									sceneGroup:insert(loseText)
-									transition.fadeIn(loseText, { time=2000 })
+									local loseIcon = display.newImageRect("assets/img/game/loser.png", 28, 28)
+									loseIcon.x, loseIcon.y = losePosition.x, losePosition.y
+									sceneGroup:insert(loseIcon)
+									transition.fadeIn(loseIcon, { time=2000 })
 								end
 
 								--timer.performWithDelay(1000, showHandResult)
@@ -177,9 +195,9 @@ function scene:create(event)
 
 						local function gotoGameoverScene()
 
-							local options = { effect = "crossFade", time = 2500, params = { gameResult = gameResult} }
+							local options = { effect = "crossFade", time = 2500, params = { gameResult = gameResult, difficulty = difficulty} }
 
-							composer.gotoScene("gameover", options)
+							composer.showOverlay("src.scene.gameover", options)
 						end
 
 						timer.performWithDelay(3000, gotoGameoverScene)
@@ -203,21 +221,23 @@ function scene:create(event)
 
 		sceneGroup:insert(background)
 
-		--rivalName = display.newText("RIVAL", layout.position.rival.name.x, layout.position.rival.name.y, native.systemFont, 16)
-		--rivalName:setFillColor(1)
-		--sceneGroup:insert(rivalName)
+		rivalName = display.newText("RIVAL", layout.position.rival.name.x, layout.position.rival.name.y, "assets/fonts/PokerKings-Regular.ttf", 16)
+		rivalName:setFillColor(1)
+		sceneGroup:insert(rivalName)
 
-		--rivalScore = display.newText("0", layout.position.rival.score.x, layout.position.rival.score.y, native.systemFont, 32)
-		--rivalScore:setFillColor(1)
-		--sceneGroup:insert(rivalScore)
+		local rivalIcon = display.newImageRect("assets/img/game/rival.png", 48, 48)
+		rivalIcon.x, rivalIcon.y = layout.position.rival.icon.x, layout.position.rival.icon.y
+		rivalIcon:setFillColor(1)
+		sceneGroup:insert(rivalIcon)
 
-		--playerName = display.newText("PLAYER", layout.position.player.name.x, layout.position.player.name.y, native.systemFont, 16)
-		--playerName:setFillColor(1)
-		--sceneGroup:insert(playerName)
+		playerName = display.newText("PLAYER", layout.position.player.name.x, layout.position.player.name.y, "assets/fonts/PokerKings-Regular.ttf", 16)
+		playerName:setFillColor(1)
+		sceneGroup:insert(playerName)
 
-		--playerScore = display.newText("0", layout.position.player.score.x, layout.position.player.score.y, native.systemFont, 32)
-		--playerScore:setFillColor(1)
-		--sceneGroup:insert(playerScore)
+		local playerIcon = display.newImageRect("assets/img/game/player.png", 48, 48)
+		playerIcon.x, playerIcon.y = layout.position.player.icon.x, layout.position.player.icon.y
+		playerIcon:setFillColor(1)
+		sceneGroup:insert(playerIcon)
 
 		function displayCardImage(card, position, isEventListenerToAdd)
 
@@ -290,13 +310,15 @@ function scene:create(event)
 				if card then
 					displayCardImage(card, firstLevelPositions[handIndex], false)
 					currMatch:addCardToHand({card=card, handIndex=handIndex})
-					currMatch:nextTurn()
+					--currMatch:nextTurn()
 				end
 			end
 		end
 
 		initializeFirstLevel(match.config.turn.player)
+		currMatch:nextTurn()
 		initializeFirstLevel(match.config.turn.rival)
+		currMatch:nextTurn()
 	end
 
 	setupUi()
@@ -317,10 +339,7 @@ function scene:show(event)
 	if phase == "will" then
 
 	elseif phase == "did" then
-		-- Called when the scene is now on screen
-		-- 
-		-- INSERT code here to make the scene come alive
-		-- e.g. start timers, begin animation, play audio, etc.
+
 	end	
 end
 
@@ -331,22 +350,17 @@ function scene:hide(event)
 	local phase = event.phase
 	
 	if event.phase == "will" then
-		-- Called when the scene is on screen and is about to move off screen
-		--
-		-- INSERT code here to pause the scene
-		-- e.g. stop timers, stop animation, unload sounds, etc.)
+
 	elseif phase == "did" then
-		-- Called when the scene is now off screen
 	end
 end
 
-function scene:destroy( event )
+function scene:destroy(event)
 	local sceneGroup = self.view
 	
-	-- Called prior to the removal of scene's "view" (sceneGroup)
-	-- 
-	-- INSERT code here to cleanup the scene
-	-- e.g. remove display objects, remove touch listeners, save state, etc.
+	print("destroy")
+
+	layout = {}
 end
 ---------------------------------------------------------------------------------
 
@@ -372,31 +386,20 @@ function scene:playTurn()
 		local card = currDeck:getCard()
 
 		local isPlayerTurn, cardLevel = currMatch:getTurnInformation()
-		local cardPositionList = layout.getCardPositionList({isPlayer = isPlayerTurn, level = cardLevel})
+		
+		local handIndex = pokerbot:playTurn(currMatch, card, cardLevel)
 
-		local insert = false
-		while insert == false do
-
-			local randomHandIndex = math.random(5)
-
-			local isPlayerTurn, cardLevel = currMatch:getTurnInformation()
-
-			local hand = currMatch:getHand({isPlayer = isPlayerTurn, handIndex = randomHandIndex}) 
-
-			if hand and #(hand.cards) == (cardLevel-1) then
-
-				local position = {x = cardPositionList[randomHandIndex].x, y = cardPositionList[randomHandIndex].y}
+		if handIndex and handIndex > 0 then
+			local cardPositionList = layout.getCardPositionList({isPlayer = isPlayerTurn, level = cardLevel})
+			local position = {x = cardPositionList[handIndex].x, y = cardPositionList[handIndex].y}
 				
-				sound.play(sound.cardFlip)
+			sound.play(sound.cardFlip)
 
-				local result = displayCardImage(card, position , false)
+			local result = displayCardImage(card, position , false)
 
-				currMatch:addCardToHand({card = card, handIndex = randomHandIndex})
+			currMatch:addCardToHand({card = card, handIndex = handIndex})
 				
-				currMatch:nextTurn()
-
-				insert = true
-			end
+			currMatch:nextTurn()
 		end
 	end
 end
