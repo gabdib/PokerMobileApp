@@ -6,7 +6,7 @@
 
 local match = require "src.model.match"
 
-layout = {}
+local layout = {}
 
 layout.contentCenterDelta = 
 {
@@ -70,34 +70,16 @@ function layout.generateCardPositionList(isPlayer)
 	return cardPositions
 end
 
-layout.position =
-{
-	player = 
-	{
-		name = {x = display.contentCenterX-layout.contentCenterDelta.name.x, y = display.contentCenterY+layout.contentCenterDelta.name.y},
-		icon = {x =display.contentCenterX-layout.contentCenterDelta.icon.x , y = display.contentCenterY+layout.contentCenterDelta.icon.y},
-		card = layout.generateCardPositionList(true)
-	},
-	
-	rival =
-	{
-		name = {x = display.contentCenterX-layout.contentCenterDelta.name.x, y = display.contentCenterY-layout.contentCenterDelta.name.y},
-		icon = {x = display.contentCenterX-layout.contentCenterDelta.icon.x, y = display.contentCenterY-layout.contentCenterDelta.icon.y},
-		card = layout.generateCardPositionList(false)
-	},
-
-	deck = {x = display.contentCenterX-layout.contentCenterDelta.deck.x, y = display.contentCenterY-layout.contentCenterDelta.deck.y}
-}
-
-
 function layout.initialCardPosition(who)
 	
-	local x,y
+	local x,y = -1,-1
 
-	if who and who == match.config.turn.player then
-		x,y = layout.position.player.card.initial.x, layout.position.player.card.initial.y
-	else
-		x, y = layout.position.rival.card.initial.x, layout.position.rival.card.initial.y
+	if who then
+		if who == match.config.turn.player then
+			x,y = layout.position.player.card.initial.x, layout.position.player.card.initial.y
+		else
+			x, y = layout.position.rival.card.initial.x, layout.position.rival.card.initial.y
+		end
 	end
 
 	return x,y
@@ -143,6 +125,28 @@ function layout.getCardPositionList(params)
 	end
 
 	return positionList
+end
+
+function layout.initialize()
+
+	layout.position =
+{
+	player = 
+	{
+		name = {x = display.contentCenterX-layout.contentCenterDelta.name.x, y = display.contentCenterY+layout.contentCenterDelta.name.y},
+		icon = {x =display.contentCenterX-layout.contentCenterDelta.icon.x , y = display.contentCenterY+layout.contentCenterDelta.icon.y},
+		card = layout.generateCardPositionList(true)
+	},
+	
+	rival =
+	{
+		name = {x = display.contentCenterX-layout.contentCenterDelta.name.x, y = display.contentCenterY-layout.contentCenterDelta.name.y},
+		icon = {x = display.contentCenterX-layout.contentCenterDelta.icon.x, y = display.contentCenterY-layout.contentCenterDelta.icon.y},
+		card = layout.generateCardPositionList(false)
+	},
+
+	deck = {x = display.contentCenterX-layout.contentCenterDelta.deck.x, y = display.contentCenterY-layout.contentCenterDelta.deck.y}
+}
 end
 
 return layout

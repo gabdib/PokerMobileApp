@@ -31,6 +31,8 @@ function scene:create(event)
 	currDeck:shuffle()
 	currMatch = match.new({})
 
+	layout.initialize()
+
 	local difficulty = event.params.difficulty
 
 	if difficulty then
@@ -84,7 +86,7 @@ function scene:create(event)
 						if cardPositionList then
 
 							for i,pos in pairs(cardPositionList) do
-
+								-- if card is released on a valid position
 								if t.x >= pos.x-card.config.width/2 and t.x <= pos.x+card.config.width/2
 									and t.y >= pos.y-card.config.height/2 and t.y <= pos.y+card.config.height/2 then
 
@@ -100,11 +102,9 @@ function scene:create(event)
 				end
 
 				local i,pos = computePosition()
-
 				local isPlayerTurn, cardLevel = currMatch:getTurnInformation()
 
 				local hand
-
 				if i and pos then
 					hand = currMatch:getHand({isPlayer = isPlayerTurn, handIndex = i}) 
 				end
@@ -133,7 +133,6 @@ function scene:create(event)
 
 							local winPosition, losePosition
 							local playerWinningCounter, rivalWinningCounter = 0,0
-
 
 							local checkHand
 							for iHand=1, match.config.hands.size do
@@ -225,7 +224,7 @@ function scene:create(event)
 		rivalName:setFillColor(1)
 		sceneGroup:insert(rivalName)
 
-		local rivalIcon = display.newImageRect("assets/img/game/rival.png", 48, 48)
+		rivalIcon = display.newImageRect("assets/img/game/rival.png", 48, 48)
 		rivalIcon.x, rivalIcon.y = layout.position.rival.icon.x, layout.position.rival.icon.y
 		rivalIcon:setFillColor(1)
 		sceneGroup:insert(rivalIcon)
@@ -234,7 +233,7 @@ function scene:create(event)
 		playerName:setFillColor(1)
 		sceneGroup:insert(playerName)
 
-		local playerIcon = display.newImageRect("assets/img/game/player.png", 48, 48)
+		playerIcon = display.newImageRect("assets/img/game/player.png", 48, 48)
 		playerIcon.x, playerIcon.y = layout.position.player.icon.x, layout.position.player.icon.y
 		playerIcon:setFillColor(1)
 		sceneGroup:insert(playerIcon)
@@ -270,11 +269,10 @@ function scene:create(event)
 		end
 
 		deckButton = widget.newButton{
-		labelColor = { default={0}, over={128} },
-		defaultFile = card.config.back,
-		width = card.config.width, height = card.config.height,
-		onRelease = 
-			function ()
+			labelColor = { default={0}, over={128} },
+			defaultFile = card.config.back,
+			width = card.config.width, height = card.config.height,
+			onRelease = function ()
 				
 				local result = false
 
@@ -333,34 +331,14 @@ function scene:show(event)
 		if params.rivalScore then rivalScore.text = updateData.rivalScore end
 		if params.playerScore then playerScore.text = updateData.playerScore end 
 	end
-
-	local phase = event.phase
-	
-	if phase == "will" then
-
-	elseif phase == "did" then
-
-	end	
 end
 
 function scene:hide(event)
-
 	local sceneGroup = self.view
-
-	local phase = event.phase
-	
-	if event.phase == "will" then
-
-	elseif phase == "did" then
-	end
 end
 
 function scene:destroy(event)
 	local sceneGroup = self.view
-	
-	print("destroy")
-
-	layout = {}
 end
 ---------------------------------------------------------------------------------
 

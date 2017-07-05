@@ -1,5 +1,7 @@
 local composer = require( "composer" )
- local widget = require("widget")
+local widget = require("widget")
+
+local sound = require "src.utility.sound"
 
 local scene = composer.newScene()
  
@@ -19,9 +21,11 @@ function scene:create( event )
         if gameResult.winner == "player" then
             resultMessage = "You Win"
             resultIconPath = "assets/img/game/winner.png"
+            sound.play(sound.winner)
         elseif gameResult.winner == "rival" then
             resultMessage = "You Lose"
             resultIconPath = "assets/img/game/loser.png"
+            sound.play(sound.loser)
         end
     end
     
